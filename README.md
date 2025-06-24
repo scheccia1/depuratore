@@ -8,8 +8,11 @@ b. card-mod <br>
 1) nella cartella "packages" copia il file: depuratore.yaml <br>
 2) crea una nuova card con il codice di: card.txt <br>
 
-modifica depuratore.yaml impostando i tuoi dati<br>
+modifica depuratore.yaml impostando i tuoi dati per la notifica e puoi cambiare il nome del filtro nelle notifiche<br> 
+Nella Card puoi cambiare i nomi dei filtri da visualizzare.
 
-![card](https://github.com/user-attachments/assets/66fad112-6fd6-4598-a9ed-9d473bc86ba3)
-![setting_card](https://github.com/user-attachments/assets/fcd29a49-0eb8-4e6f-ac6a-11e4fbb67de1)
+![card](https://github.com/user-attachments/assets/855aa4d9-8de4-4d45-a936-904954d0f0db)
+
+![setting_card](https://github.com/user-attachments/assets/35aff092-afaf-4211-bc8c-d137fda8591f)
+
 
