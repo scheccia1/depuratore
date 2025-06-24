@@ -1,0 +1,285 @@
+####################################################
+#                                                  #
+#              IMPOSTAZIONI PACKAGE                #
+#                  DEPURATORE                      #
+#               BY AGOSTINO PITASI                 #
+#                                                  #
+####################################################
+notify:
+  - name: filtro_notifiche
+    platform: group
+    services:
+      - service: mobile_app_XXX
+      - service: mobile_app_XXX
+
+group:
+  gruppo_speaker_google:
+    name: Gruppo Speaker Google
+    entities:
+      - media_player.cornice
+
+input_text:
+  nuova_data_1:
+    name: Nuova data 1
+    pattern: '^\d{2}/\d{2}/\d{4}$'
+  nuova_data_2:
+    name: Nuova data 2
+    pattern: '^\d{2}/\d{2}/\d{4}$'
+  nuova_data_3:
+    name: Nuova data 3
+    pattern: '^\d{2}/\d{2}/\d{4}$'
+
+input_datetime:
+  ultima_sostituzione_1:
+    name: Ultima Sostituzione 1
+    has_date: true
+    has_time: false
+  ultima_sostituzione_2:
+    name: Ultima Sostituzione 2
+    has_date: true
+    has_time: false
+  ultima_sostituzione_3:
+    name: Ultima Sostituzione 3
+    has_date: true
+    has_time: false
+
+input_number:
+  durata_1:
+    name: Durata Filtro 1
+    min: 30
+    max: 365
+    step: 1
+    unit_of_measurement: "gg"
+
+
+  durata_2:
+    name: Durata Filtro 2
+    min: 30
+    max: 365
+    step: 1
+    unit_of_measurement: "gg"
+
+
+  durata_3:
+    name: Durata Filtro 3
+    min: 30
+    max: 365
+    step: 1
+    unit_of_measurement: "gg"
+ 
+
+script:
+
+  aggiorna_1_completo:
+    alias: Salva 1 (data + durata)
+    sequence:
+      - variables:
+          testo_data: "{{ states('input_text.nuova_data_1') }}"
+      - condition: template
+        value_template: >
+          {{ testo_data is match('^\d{2}/\d{2}/\d{4}$') }}
+      - variables:
+          partes: "{{ testo_data.split('/') }}"
+          data_iso: "{{ partes[2] }}-{{ partes[1] }}-{{ partes[0] }}"
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.ultima_sostituzione_1
+        data:
+          date: "{{ data_iso }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.durata_1
+        data:
+          value: "{{ states('input_number.durata_1') | int }}"
+      - service: homeassistant.update_entity
+        target:
+          entity_id:
+            - sensor.giorni_rimanenti_1
+            - sensor.utilizzo_filtro_1
+
+  aggiorna_2_completo:
+    alias: Salva 2 (data + durata)
+    sequence:
+      - variables:
+          testo_data: "{{ states('input_text.nuova_data_2') }}"
+      - condition: template
+        value_template: >
+          {{ testo_data is match('^\d{2}/\d{2}/\d{4}$') }}
+      - variables:
+          partes: "{{ testo_data.split('/') }}"
+          data_iso: "{{ partes[2] }}-{{ partes[1] }}-{{ partes[0] }}"
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.ultima_sostituzione_2
+        data:
+          date: "{{ data_iso }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.durata_2
+        data:
+          value: "{{ states('input_number.durata_2') | int }}"
+      - service: homeassistant.update_entity
+        target:
+          entity_id:
+            - sensor.giorni_rimanenti_2
+            - sensor.utilizzo_filtro_2
+
+  aggiorna_3_completo:
+    alias: Salva 3 (data + durata)
+    sequence:
+      - variables:
+          testo_data: "{{ states('input_text.nuova_data_3') }}"
+      - condition: template
+        value_template: >
+          {{ testo_data is match('^\d{2}/\d{2}/\d{4}$') }}
+      - variables:
+          partes: "{{ testo_data.split('/') }}"
+          data_iso: "{{ partes[2] }}-{{ partes[1] }}-{{ partes[0] }}"
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.ultima_sostituzione_3
+        data:
+          date: "{{ data_iso }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.durata_3
+        data:
+          value: "{{ states('input_number.durata_3') | int }}"
+      - service: homeassistant.update_entity
+        target:
+          entity_id:
+            - sensor.giorni_rimanenti_3
+            - sensor.utilizzo_filtro_3
+    
+
+template:
+  - sensor:
+      - name: "Utilizzo Filtro 1"
+        unit_of_measurement: "%"
+        state: >
+          {% set durata = states('input_number.durata_1') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_1') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {% set utilizzo = (giorni / durata * 100) | round(0) %}
+            {{ [utilizzo, 100] | min }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Utilizzo Filtro 2"
+        unit_of_measurement: "%"
+        state: >
+          {% set durata = states('input_number.durata_2') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_2') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {% set utilizzo = (giorni / durata * 100) | round(0) %}
+            {{ [utilizzo, 100] | min }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Utilizzo Filtro 3"
+        unit_of_measurement: "%"
+        state: >
+          {% set durata = states('input_number.durata_3') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_3') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {% set utilizzo = (giorni / durata * 100) | round(0) %}
+            {{ [utilizzo, 100] | min }}
+          {% else %}
+            0
+          {% endif %}
+
+  - sensor:
+      - name: "Giorni Rimanenti 1"
+        unit_of_measurement: "gg"
+        state: >
+          {% set durata = states('input_number.durata_1') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_1') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {{ [durata - giorni, 0] | max }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Giorni Rimanenti 2"
+        unit_of_measurement: "gg"
+        state: >
+          {% set durata = states('input_number.durata_2') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_2') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {{ [durata - giorni, 0] | max }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Giorni Rimanenti 3"
+        unit_of_measurement: "gg"
+        state: >
+          {% set durata = states('input_number.durata_3') | int(0) %}
+          {% set dt = states('input_datetime.ultima_sostituzione_3') %}
+          {% if dt not in ['unknown', 'unavailable', None] and durata > 0 %}
+            {% set giorni = (now().replace(tzinfo=None) - dt | as_datetime).days %}
+            {{ [durata - giorni, 0] | max }}
+          {% else %}
+            unknown
+          {% endif %}
+    
+  - sensor: ##finto per pulsante
+      - name: "Impostazioni Filtri Dummy"
+        unique_id: impostazioni_filtri_dummy
+        state: ""
+
+####################################################
+#                                                  #
+#                     NOTIFICHE                    #
+#                                                  #
+####################################################
+
+automation:
+  - alias: "Avviso sostituzione 1"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.utilizzo_filtro_1
+        above: 90
+    action:
+      - service: notify.filtro_notifiche
+        data:
+          message: "⚠️ Il filtro 1 ha superato il 90% di utilizzo!"
+      - service: tts.google_say
+        data:
+          entity_id: group.gruppo_speaker_google
+          message: "Attenzione, il filtro 1 ha superato il novanta per cento di utilizzo."
+
+  - alias: "Avviso sostituzione 2"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.utilizzo_filtro_2
+        above: 90
+    action:
+      - service: notify.filtro_notifiche
+        data:
+          message: "⚠️ Il filtro 2 ha superato il 90% di utilizzo!"
+      - service: tts.google_say
+        data:
+          entity_id: group.gruppo_speaker_google
+          message: "Attenzione, il filtro 2 ha superato il novanta per cento di utilizzo."
+
+  - alias: "Avviso sostituzione 3"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.utilizzo_filtro_3
+        above: 90
+    action:
+      - service: notify.filtro_notifiche
+        data:
+          message: "⚠️ Il filtro 3 ha superato il 90% di utilizzo!"
+      - service: tts.google_say
+        data:
+          entity_id: group.gruppo_speaker_google
+          message: "Attenzione, il filtro 3 ha superato il novanta per cento di utilizzo."
