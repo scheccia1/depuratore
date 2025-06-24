@@ -1,0 +1,156 @@
+type: entities
+title: Depuratore
+card_mod:
+  style:
+    hui-sensor-entity-row:
+      $: |
+        hui-generic-entity-row {
+          height: 3em;
+          padding: 0px 6px 0px 0px;
+          border-radius: 8px;
+          border: 1px groove #4d4d4d;
+        }
+        hui-generic-entity-row::after {
+           font-weight: 400;
+           font-size: 0.72em;
+           font-style: italic;
+           text-wrap-mode: nowrap;
+           color: #b4b4b4;
+           padding-left: 0.6em;
+        }
+    .: |
+      .card-content {
+        background:
+          {% set dark = is_state('binary_sensor.donker_thema','on') %}
+          {% if not dark %} var(--ha-color) {% endif %};
+      }
+      ha-card {
+        color: white;
+        --card-mod-icon-color: white;
+        --mdc-icon-size: 24px;
+        font-weight: 500;
+      }
+entities:
+  - entity: sensor.utilizzo_filtro_1
+    name: Filtro 1
+    icon: mdi:water-circle
+    card_mod:
+      style: |
+        hui-generic-entity-row {
+          background:
+            {% set value1 = states('sensor.giorni_rimanenti_1') | int %}
+            {% set maxvalue = states('input_number.durata_1') | int %}
+            {% set value = int( value1 / maxvalue * 100 ) %}
+            /* ! Convert Range to the needed 0-100% values ! */
+            {% if value >= 80 %} {% set bar = '0,155,0' %}
+            {% elif value >= 50 %} {% set bar = '0, 120, 0' %}
+            {% elif value >= 30 %} {% set bar = '255, 105, 0' %}
+            {% elif value >= 10 %} {% set bar = '255, 65, 0' %}
+            {% else %} {% set bar = '255, 0, 0' %}
+            {% endif %}
+            linear-gradient(90deg, 
+            rgba({{bar}},0.9) 0%, 
+            rgba({{bar}},0.9) {{value}}%,
+            rgba({{bar}},0.5) {{value}}%, 
+            rgba({{bar}},0.15) 100%);
+        }
+        hui-generic-entity-row::after {
+          content: 'Giorni Rimasti {{ value1 }}/{{ maxvalue }}'
+        }
+  - entity: sensor.utilizzo_filtro_2
+    name: Filtro 2
+    icon: mdi:water-circle
+    card_mod:
+      style: |
+        hui-generic-entity-row {
+          background:
+            {% set value1 = states('sensor.giorni_rimanenti_2') | int %}
+            {% set maxvalue = states('input_number.durata_2') | int %}
+            {% set value = int( value1 / maxvalue * 100 ) %}
+            /* ! Convert Range to the needed 0-100% values ! */
+            {% if value >= 80 %} {% set bar = '0,155,0' %}
+            {% elif value >= 50 %} {% set bar = '0, 120, 0' %}
+            {% elif value >= 30 %} {% set bar = '255, 105, 0' %}
+            {% elif value >= 10 %} {% set bar = '255, 65, 0' %}
+            {% else %} {% set bar = '255, 0, 0' %}
+            {% endif %}
+            linear-gradient(90deg, 
+            rgba({{bar}},0.9) 0%, 
+            rgba({{bar}},0.9) {{value}}%,
+            rgba({{bar}},0.5) {{value}}%, 
+            rgba({{bar}},0.15) 100%);
+        }
+        hui-generic-entity-row::after {
+          content: 'Giorni Rimasti {{ value1 }}/{{ maxvalue }}'
+          }
+  - entity: sensor.utilizzo_filtro_3
+    name: Filtro 3
+    icon: mdi:water-circle
+    card_mod:
+      style: |
+        hui-generic-entity-row {
+          background:
+            {% set value1 = states('sensor.giorni_rimanenti_3') | int %}
+            {% set maxvalue = states('input_number.durata_3') | int %}
+            {% set value = int( value1 / maxvalue * 100 ) %}
+            /* ! Convert Range to the needed 0-100% values ! */
+            {% if value >= 80 %} {% set bar = '0,155,0' %}
+            {% elif value >= 50 %} {% set bar = '0, 120, 0' %}
+            {% elif value >= 30 %} {% set bar = '255, 105, 0' %}
+            {% elif value >= 10 %} {% set bar = '255, 65, 0' %}
+            {% else %} {% set bar = '255, 0, 0' %}
+            {% endif %}
+            linear-gradient(90deg, 
+            rgba({{bar}},0.9) 0%, 
+            rgba({{bar}},0.9) {{value}}%,
+            rgba({{bar}},0.5) {{value}}%, 
+            rgba({{bar}},0.15) 100%);
+        }
+        hui-generic-entity-row::after {
+          content: 'Giorni Rimasti {{ value1 }}/{{ maxvalue }}'
+         }                                            
+  - entity: sensor.impostazioni_filtri_dummy
+    show_state: false
+    icon: mdi:tune
+    name: Impostazioni Filtri
+    tap_action:
+      action: fire-dom-event
+      browser_mod:
+        service: browser_mod.popup
+        data:
+          title: Impostazioni Filtri Depuratore
+          dismissable: true
+          autoclose: false
+          content:
+            type: entities
+            entities:
+              - type: section
+                label: 1
+              - entity: input_text.nuova_data_1
+                name: Inserisci data (gg/mm/aaaa)
+              - entity: input_number.durata_1
+                name: Durata (giorni)
+              - type: section
+                label: 2
+              - entity: input_text.nuova_data_2
+                name: Inserisci data (gg/mm/aaaa)
+              - entity: input_number.durata_2
+                name: Durata (giorni)
+              - type: section
+                label: 3
+              - entity: input_text.nuova_data_3
+                name: Inserisci data (gg/mm/aaaa)
+              - entity: input_number.durata_3
+                name: Durata (giorni)
+              - type: section
+              - type: button
+                name: Aggiorna Configurazione
+                icon: mdi:content-save-all
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  target:
+                    entity_id:
+                      - script.aggiorna_1_completo
+                      - script.aggiorna_2_completo
+                      - script.aggiorna_3_completo
