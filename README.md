@@ -1,4 +1,4 @@
-# depuratore 1.0
+# depuratore Home Assistant 1.0
 Package e Card per controllare la durata deii filtri di un depuratore a 3 stadi con notifica per Home Assistant<br>
 
 Istruzioni: <br>
@@ -9,3 +9,4 @@ b. card-mod <br>
 2) crea una nuova card con il codice di: card.txt <br>
 
 modifica depuratore.yaml impostando i tuoi dati<br>
+
